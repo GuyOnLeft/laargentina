@@ -3,10 +3,8 @@ const fs = require('fs');
 const path = require('path');
 
 const server = http.createServer((req, res) => {
-  // Handle requests for different URLs
   if (req.url === '/') {
-    // Read and serve the index.html file
-    const filePath = path.join(__dirname, 'index.html');
+    const filePath = path.join(__dirname, 'public', 'index.html');
     fs.readFile(filePath, 'utf-8', (err, content) => {
       if (err) {
         res.writeHead(500, { 'Content-Type': 'text/plain' });
@@ -16,8 +14,19 @@ const server = http.createServer((req, res) => {
         res.end(content);
       }
     });
+  } else if (req.url.startsWith('/public/')) {
+    // Serve static files from the public directory
+    const requestedPath = path.join(__dirname, req.url);
+    fs.readFile(requestedPath, (err, content) => {
+      if (err) {
+        res.writeHead(404, { 'Content-Type': 'text/plain' });
+        res.end('File Not Found');
+      } else {
+        res.writeHead(200);
+        res.end(content);
+      }
+    });
   } else {
-    // Handle other requests (404)
     res.writeHead(404, { 'Content-Type': 'text/plain' });
     res.end('Not Found');
   }
@@ -25,5 +34,4 @@ const server = http.createServer((req, res) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+  console.log(`Server
